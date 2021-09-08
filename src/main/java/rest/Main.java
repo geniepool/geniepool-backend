@@ -28,8 +28,10 @@ public class Main {
     ));
 
     private static final String HG19_PATH;
-
     private static final String HG38_PATH;
+
+    private static final String HG19_STATUS_PATH;
+    private static final String HG38_STATUS_PATH;
 
     private static final int MAX_RANGE_RECORDS_IN_RESULT;
 
@@ -37,8 +39,13 @@ public class Main {
         HG19_PATH = System.getProperty("REPO_HG_19_PATH");
         HG38_PATH = System.getProperty("REPO_HG_38_PATH");
 
-        if (HG19_PATH == null || HG19_PATH.isEmpty() || HG38_PATH == null || HG38_PATH.isEmpty()){
-            throw new IllegalStateException("repo path is empty!");
+        HG19_STATUS_PATH = System.getProperty("HG19_STATUS_PATH");
+        HG38_STATUS_PATH = System.getProperty("HG38_STATUS_PATH");
+
+        if (HG19_PATH == null || HG19_PATH.isEmpty() || HG38_PATH == null
+                || HG38_PATH.isEmpty() || HG19_STATUS_PATH == null || HG19_STATUS_PATH.isEmpty()
+                || HG38_STATUS_PATH == null || HG38_STATUS_PATH.isEmpty()){
+            throw new IllegalStateException("repo or status path is empty!");
         }
 
         MAX_RANGE_RECORDS_IN_RESULT = Integer.parseInt(System.getProperty("MAX_RANGE_RECORDS_IN_RESULT", "100"));
@@ -51,9 +58,33 @@ public class Main {
     }
 
     @GET
+    @Path("/hg38/status")
+    public Response getStatus38() {
+        try{
+            String status = QueryEngine.getRepoStatus(HG38_STATUS_PATH);
+            return Response.status(OK).entity(status).build();
+        }catch(Exception e){
+            logger.error(e);
+            return Response.status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
     @Path("/hg19/{index}")
     public Response getResult19(@PathParam("index") String index) {
         return getResult(index, HG19_PATH, MAX_RANGE_RECORDS_IN_RESULT);
+    }
+
+    @GET
+    @Path("/hg19/status")
+    public Response getStatus19() {
+        try{
+            String status = QueryEngine.getRepoStatus(HG19_STATUS_PATH);
+            return Response.status(OK).entity(status).build();
+        }catch(Exception e){
+            logger.error(e);
+            return Response.status(INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     Response getResult(String index, String repoPath, int maxRangeResult){

@@ -22,15 +22,20 @@ public class MainTest {
         Logger.getLogger("org.apache").setLevel(Level.WARN);
     }
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     //TODO add more tests + test on Tomcat (use docker?)
 
     public static final String REPO_PATH_RANGES = "src/test/resources/repo_ranges/";
+    public static final String STATUS_PATH = "src/test/resources/status/";
 
     @Test
     public void getResultTest() throws IOException {
 
         System.setProperty("REPO_HG_19_PATH", REPO_PATH_RANGES);
         System.setProperty("REPO_HG_38_PATH", REPO_PATH_RANGES);
+        System.setProperty("HG19_STATUS_PATH", STATUS_PATH);
+        System.setProperty("HG38_STATUS_PATH", STATUS_PATH);
         System.setProperty("MAX_RANGE_RECORDS_IN_RESULT", "10");
 
         // test common valid flow
@@ -38,7 +43,7 @@ public class MainTest {
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
-        JsonNode result = ((ArrayNode) new ObjectMapper().readTree((String)response.getEntity()).get("entries")).get(0);
+        JsonNode result = ((ArrayNode) objectMapper.readTree((String)response.getEntity()).get("entries")).get(0);
         Assert.assertEquals("G", result.get("ref").asText());
         Assert.assertEquals("A", result.get("alt").asText());
         ArrayNode homArray = (ArrayNode) result.get("hom");
@@ -53,7 +58,7 @@ public class MainTest {
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
-        result = ((ArrayNode) new ObjectMapper().readTree((String)response.getEntity()).get("entries")).get(0);
+        result = ((ArrayNode) objectMapper.readTree((String)response.getEntity()).get("entries")).get(0);
         Assert.assertEquals("G", result.get("ref").asText());
         Assert.assertEquals("A", result.get("alt").asText());
         homArray = (ArrayNode) result.get("hom");
@@ -68,7 +73,7 @@ public class MainTest {
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
 
-        JsonNode jsonResult = new ObjectMapper().readTree((String)response.getEntity());
+        JsonNode jsonResult = objectMapper.readTree((String)response.getEntity());
         Assert.assertEquals(11, jsonResult.get("count").asInt());
 
         ArrayNode dataArray = (ArrayNode)jsonResult.get("data");
@@ -106,6 +111,23 @@ public class MainTest {
         // test bad input 4
         response = new Main().getResult("x:500000000", REPO_PATH_RANGES, 10);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void getStatusTest() throws IOException {
+        System.setProperty("REPO_HG_19_PATH", REPO_PATH_RANGES);
+        System.setProperty("REPO_HG_38_PATH", REPO_PATH_RANGES);
+        System.setProperty("HG19_STATUS_PATH", STATUS_PATH);
+        System.setProperty("HG38_STATUS_PATH", STATUS_PATH);
+
+        Response response = new Main().getStatus19();
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        JsonNode result = objectMapper.readTree(response.getEntity().toString());
+        System.out.println(result);
+        Assert.assertNotNull(result);
+
+        response = new Main().getStatus38();
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
     }
 
 }

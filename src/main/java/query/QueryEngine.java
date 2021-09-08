@@ -72,4 +72,20 @@ public class QueryEngine {
 
         return (String) result.as(Encoders.STRING()).collectAsList().get(0);
     }
+
+    public static String getRepoStatus(String statusPath){
+
+        return spark.read()
+                .json(statusPath)
+                .orderBy(col("update_date").desc())
+                .limit(1)
+                .select(
+                        to_json(
+                            struct(
+                                    "mutations_num", "samples_num", "update_date"
+                            )
+                        )
+                ).as(Encoders.STRING()).collectAsList().get(0);
+
+    }
 }

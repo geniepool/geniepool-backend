@@ -11,7 +11,9 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static query.QueryEngine.EMPTY_RESULT;
+import static query.QueryEngine.getRepoStatus;
 import static rest.MainTest.REPO_PATH_RANGES;
+import static rest.MainTest.STATUS_PATH;
 
 public class QueryEngineTest {
 
@@ -148,4 +150,15 @@ public class QueryEngineTest {
                 ()-> QueryEngine.getMutationsByRange("e", 1, 2, REPO_PATH_RANGES, 100));
     }
 
+    @Test
+    public void getRepoStatusTest() throws IOException {
+        String result = getRepoStatus(STATUS_PATH);
+        Assert.assertNotNull(result);
+        System.out.println(result);
+
+        JsonNode jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(1061550583, jsonResult.get("mutations_num").asInt());
+        Assert.assertEquals(9997, jsonResult.get("samples_num").asInt());
+        Assert.assertEquals("2021-09-08 06:32:20.432", jsonResult.get("update_date").asText());
+    }
 }
