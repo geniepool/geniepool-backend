@@ -19,8 +19,6 @@ public class QueryEngine {
 
     static{
 
-        //TODO add summary data
-
         spark = SparkSession.builder().appName("genetics-app").master("local[*]").getOrCreate();
 
         String awsKey = System.getProperty("AWS_ACCESS_KEY_ID");
@@ -63,7 +61,7 @@ public class QueryEngine {
                 .agg(
                         to_json(
                                 struct(
-                                        count("*").as("count"),
+                                        coalesce(sum(size(col("entries"))), lit(0)).as("count"),
                                         slice(
                                                 collect_list(
                                                         struct(col("pos"), col("entries"))),1, maxRecordsNum

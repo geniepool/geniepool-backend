@@ -120,6 +120,15 @@ public class QueryEngineTest {
         dataArray = (ArrayNode)jsonResult.get("data");
         Assert.assertEquals(1, dataArray.size());
 
+        // test counter counts mutations (rather than positions)
+        result = QueryEngine.getMutationsByRange("2", 47805600, 47805603, REPO_PATH_RANGES, 100);
+        Assert.assertNotNull(result);
+        System.out.println(result);
+        jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(2, jsonResult.get("count").asInt());
+        dataArray = (ArrayNode)jsonResult.get("data");
+        Assert.assertEquals(1, dataArray.size());
+
         // empty result
         result = QueryEngine.getMutationsByRange("2", 25234483, 25234490, REPO_PATH_RANGES, 100);
         Assert.assertNotNull(result);
