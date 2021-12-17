@@ -85,6 +85,7 @@ public class QueryEngineTest {
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
+        Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
 
         JsonNode last = dataArray.get(9);
         Assert.assertEquals(25313958, last.get("pos").asInt());

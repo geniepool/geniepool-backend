@@ -48,10 +48,12 @@ public class MainTest {
         Assert.assertEquals("A", result.get("alt").asText());
         ArrayNode homArray = (ArrayNode) result.get("hom");
         Assert.assertEquals(1, homArray.size());
-        Assert.assertEquals("SRR14860530", homArray.get(0).asText());
+        Assert.assertEquals("SRR14860530", homArray.get(0).get("id").asText());
+        Assert.assertEquals(1376.31, homArray.get(0).get("qual").asDouble(), 0);
         ArrayNode hetArray = (ArrayNode) result.get("het");
         Assert.assertEquals(1, hetArray.size());
-        Assert.assertEquals("SRR14860527", hetArray.get(0).asText());
+        Assert.assertEquals("SRR14860527", hetArray.get(0).get("id").asText());
+        Assert.assertEquals(464.64, hetArray.get(0).get("qual").asDouble(), 0);
 
         // test lower case
         response = new Main().getResult("x:77633124", REPO_PATH_RANGES, 10);
@@ -63,10 +65,10 @@ public class MainTest {
         Assert.assertEquals("A", result.get("alt").asText());
         homArray = (ArrayNode) result.get("hom");
         Assert.assertEquals(1, homArray.size());
-        Assert.assertEquals("SRR14860530", homArray.get(0).asText());
+        Assert.assertEquals("SRR14860530", homArray.get(0).get("id").asText());
         hetArray = (ArrayNode) result.get("het");
         Assert.assertEquals(1, hetArray.size());
-        Assert.assertEquals("SRR14860527", hetArray.get(0).asText());
+        Assert.assertEquals("SRR14860527", hetArray.get(0).get("id").asText());
 
         //test range query
         response = new Main().getResult("2:25234482-26501857", REPO_PATH_RANGES, 10);
@@ -83,6 +85,7 @@ public class MainTest {
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
+        Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
 
         JsonNode last = dataArray.get(9);
         Assert.assertEquals(25313958, last.get("pos").asInt());
