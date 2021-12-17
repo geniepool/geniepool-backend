@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static query.QueryEngine.EMPTY_RESULT;
 import static query.QueryEngine.getRepoStatus;
 import static rest.MainTest.REPO_PATH_RANGES;
 import static rest.MainTest.STATUS_PATH;
@@ -24,48 +23,6 @@ public class QueryEngineTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     //TODO utils for json parsing
-
-    @Test
-    public void getMutationsByIndexTest() throws IOException {
-
-        String result = QueryEngine.getMutationsByIndex("2", 25247044, REPO_PATH_RANGES);
-        Assert.assertNotNull(result);
-        System.out.println(result);
-        JsonNode entries = ((ArrayNode) objectMapper.readTree(result).get("entries")).get(0);
-        Assert.assertEquals("C", entries.get("ref").asText());
-        Assert.assertEquals("T", entries.get("alt").asText());
-        ArrayNode homArray = (ArrayNode) entries.get("hom");
-        Assert.assertEquals(0, homArray.size());
-        ArrayNode hetArray = (ArrayNode) entries.get("het");
-        Assert.assertEquals(2, hetArray.size());
-
-        result = QueryEngine.getMutationsByIndex("2", 26501857, REPO_PATH_RANGES);
-        Assert.assertNotNull(result);
-        System.out.println(result);
-        entries = ((ArrayNode) objectMapper.readTree(result).get("entries")).get(0);
-        Assert.assertEquals("T", entries.get("ref").asText());
-        Assert.assertEquals("G", entries.get("alt").asText());
-        homArray = (ArrayNode) entries.get("hom");
-        Assert.assertEquals(2, homArray.size());
-        hetArray = (ArrayNode) entries.get("het");
-        Assert.assertEquals(0, hetArray.size());
-
-        // empty result
-        result = QueryEngine.getMutationsByIndex("2", 26501858, REPO_PATH_RANGES);
-        Assert.assertNotNull(result);
-        System.out.println(result);
-        Assert.assertEquals(EMPTY_RESULT, result);
-
-        // invalid index
-        Assert.assertThrows(Exception.class,
-                () -> QueryEngine.getMutationsByIndex("2", 500000000, REPO_PATH_RANGES));
-
-        // invalid chromosome
-        Assert.assertThrows(Exception.class,
-                () -> QueryEngine.getMutationsByIndex("e", 1, REPO_PATH_RANGES));
-
-    }
-
 
     @Test
     public void getMutationsByRangeTest() throws IOException {

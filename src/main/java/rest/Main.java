@@ -102,9 +102,7 @@ public class Main {
 
                 String[] posSplit = indexSplit[1].trim().split("-");
 
-                if (posSplit.length == 1) {
-                    return handleSingleCoordinate(chrom, posSplit[0].trim(), repoPath);
-                }else if (posSplit.length == 2){
+                if (posSplit.length == 2){
                     return handleRange(posSplit[0].trim(), posSplit[1].trim(), chrom, repoPath, maxRangeResult) ;
                 }else{
                     return Response.status(BAD_REQUEST).build();
@@ -115,29 +113,6 @@ public class Main {
 
         }
 
-    }
-
-    private static Response handleSingleCoordinate(String chromosome, String coordinate, String repoPath){
-        int pos;
-        try {
-            pos = Integer.parseInt(coordinate);
-        } catch (Exception e) {
-            logger.error(e);
-            return Response.status(BAD_REQUEST).build();
-        }
-        logger.debug("chrom = " + chromosome + ", pos = " + pos);
-
-        try {
-            String result = QueryEngine.getMutationsByIndex(chromosome, pos, repoPath);
-            return Response.status(OK).entity(result).build();
-        } catch (Exception e) {
-            logger.error(e);
-            if (e instanceof AnalysisException) {
-                return Response.status(BAD_REQUEST).build();
-            } else {
-                return Response.status(INTERNAL_SERVER_ERROR).build();
-            }
-        }
     }
 
     private static Response handleRange(String fromStr, String toStr, String chromosome, String repoPath, int maxRangeResult){

@@ -9,12 +9,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.OK;
-import static query.QueryEngine.EMPTY_RESULT;
 
 public class MainTest {
 
@@ -39,11 +37,12 @@ public class MainTest {
         System.setProperty("MAX_RANGE_RECORDS_IN_RESULT", "10");
 
         // test common valid flow
-        Response response = new Main().getResult19("X:77633124");
+        Response response = new Main().getResult19("X:77633124-77633124");
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
-        JsonNode result = ((ArrayNode) objectMapper.readTree((String)response.getEntity()).get("entries")).get(0);
+        JsonNode result = ((ArrayNode) objectMapper.readTree((String)response.getEntity()).get("data")).get(0);
+        result = ((ArrayNode)result.get("entries")).get(0);
         Assert.assertEquals("G", result.get("ref").asText());
         Assert.assertEquals("A", result.get("alt").asText());
         ArrayNode homArray = (ArrayNode) result.get("hom");
@@ -56,11 +55,12 @@ public class MainTest {
         Assert.assertEquals(464.64, hetArray.get(0).get("qual").asDouble(), 0);
 
         // test lower case
-        response = new Main().getResult("x:77633124", REPO_PATH_RANGES, 10);
+        response = new Main().getResult("x:77633124-77633124", REPO_PATH_RANGES, 10);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
-        result = ((ArrayNode) objectMapper.readTree((String)response.getEntity()).get("entries")).get(0);
+        result = ((ArrayNode) objectMapper.readTree((String)response.getEntity()).get("data")).get(0);
+        result = ((ArrayNode)result.get("entries")).get(0);
         Assert.assertEquals("G", result.get("ref").asText());
         Assert.assertEquals("A", result.get("alt").asText());
         homArray = (ArrayNode) result.get("hom");
@@ -93,11 +93,11 @@ public class MainTest {
         Assert.assertEquals("A", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // test empty case
-        response = new Main().getResult("x:15000112", REPO_PATH_RANGES, 10);
+        response = new Main().getResult("x:15000112-15000112", REPO_PATH_RANGES, 10);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
-        Assert.assertEquals(EMPTY_RESULT, response.getEntity());
+        Assert.assertEquals(0, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
 
         // test bad input 1
         response = new Main().getResult("adkwjfh", REPO_PATH_RANGES, 10);

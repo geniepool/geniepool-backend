@@ -15,8 +15,6 @@ public class QueryEngine {
 
     private static final SparkSession spark;
 
-    public static final String EMPTY_RESULT = "{}";
-
     static{
 
         spark = SparkSession.builder().appName("genetics-app").master("local[*]").getOrCreate();
@@ -30,18 +28,6 @@ public class QueryEngine {
             conf.set("fs.s3a.secret.key", awsSecret);
         }
 
-    }
-
-    public static String getMutationsByIndex(String chrom, int pos, String repoPath){
-
-        String path = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(pos, 1_000_000));
-
-        Dataset result = spark
-                .read().parquet(path)
-                .where(col("pos").equalTo(pos))
-                .select(to_json(struct(col("entries")))).cache();
-
-        return result.count() == 0 ? EMPTY_RESULT : (String) result.as(Encoders.STRING()).collectAsList().get(0);
     }
 
     public static String getMutationsByRange(String chrom, int posFrom, int posTo, String repoPath, int maxRecordsNum){
