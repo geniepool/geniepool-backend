@@ -14,6 +14,7 @@ import static org.apache.spark.sql.functions.*;
 public class QueryEngine {
 
     private static final SparkSession spark;
+    private static final int PARTITION_SIZE = 100_000;
 
     static{
 
@@ -33,8 +34,8 @@ public class QueryEngine {
     public static String getMutationsByRange(String chrom, int posFrom, int posTo, String repoPath, int maxRecordsNum){
 
         // for range queries we scan at most two buckets
-        String path1 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posFrom, 1_000_000));
-        String path2 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posTo, 1_000_000));
+        String path1 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posFrom, PARTITION_SIZE));
+        String path2 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posTo, PARTITION_SIZE));
 
 
         Dataset df = spark.read().parquet(JavaConversions.asScalaSet(new HashSet(Arrays.asList(path1, path2))).toSeq());

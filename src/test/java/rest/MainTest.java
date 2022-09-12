@@ -71,15 +71,15 @@ public class MainTest {
         Assert.assertEquals("SRR14860527", hetArray.get(0).get("id").asText());
 
         //test range query
-        response = new Main().getResult("2:25234482-26501857", REPO_PATH_RANGES, 10);
+        response = new Main().getResult("2:25234482-25330557", REPO_PATH_RANGES, 9);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
 
         JsonNode jsonResult = objectMapper.readTree((String)response.getEntity());
-        Assert.assertEquals(11, jsonResult.get("count").asInt());
+        Assert.assertEquals(10, jsonResult.get("count").asInt());
 
         ArrayNode dataArray = (ArrayNode)jsonResult.get("data");
-        Assert.assertEquals(10, dataArray.size());
+        Assert.assertEquals(9, dataArray.size());
 
         JsonNode first = dataArray.get(0);
         Assert.assertEquals(25234482, first.get("pos").asInt());
@@ -87,13 +87,13 @@ public class MainTest {
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
         Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
 
-        JsonNode last = dataArray.get(9);
-        Assert.assertEquals(25313958, last.get("pos").asInt());
-        Assert.assertEquals("G", ((ArrayNode)last.get("entries")).get(0).get("ref").asText());
-        Assert.assertEquals("A", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
+        JsonNode last = dataArray.get(8);
+        Assert.assertEquals(25247044, last.get("pos").asInt());
+        Assert.assertEquals("C", ((ArrayNode)last.get("entries")).get(0).get("ref").asText());
+        Assert.assertEquals("T", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // test empty case
-        response = new Main().getResult("x:15000112-15000112", REPO_PATH_RANGES, 10);
+        response = new Main().getResult("x:15800112-15800112", REPO_PATH_RANGES, 10);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());

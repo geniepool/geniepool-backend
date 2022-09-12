@@ -28,15 +28,15 @@ public class QueryEngineTest {
     public void getMutationsByRangeTest() throws IOException {
 
         // range of two files, count of one
-        String result = QueryEngine.getMutationsByRange("2", 25234482, 26501857, REPO_PATH_RANGES, 10);
+        String result = QueryEngine.getMutationsByRange("2", 25234482, 25330557, REPO_PATH_RANGES, 9);
         Assert.assertNotNull(result);
         System.out.println(result);
 
         JsonNode jsonResult = objectMapper.readTree(result);
-        Assert.assertEquals(11, jsonResult.get("count").asInt());
+        Assert.assertEquals(10, jsonResult.get("count").asInt());
 
         ArrayNode dataArray = (ArrayNode)jsonResult.get("data");
-        Assert.assertEquals(10, dataArray.size());
+        Assert.assertEquals(9, dataArray.size());
 
         JsonNode first = dataArray.get(0);
         Assert.assertEquals(25234482, first.get("pos").asInt());
@@ -44,31 +44,31 @@ public class QueryEngineTest {
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
         Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
 
-        JsonNode last = dataArray.get(9);
-        Assert.assertEquals(25313958, last.get("pos").asInt());
-        Assert.assertEquals("G", ((ArrayNode)last.get("entries")).get(0).get("ref").asText());
-        Assert.assertEquals("A", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
+        JsonNode last = dataArray.get(8);
+        Assert.assertEquals(25247044, last.get("pos").asInt());
+        Assert.assertEquals("C", ((ArrayNode)last.get("entries")).get(0).get("ref").asText());
+        Assert.assertEquals("T", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // range of two
-        result = QueryEngine.getMutationsByRange("2", 25234482, 26501859, REPO_PATH_RANGES, 100);
+        result = QueryEngine.getMutationsByRange("2", 25234482, 25330557, REPO_PATH_RANGES, 100);
         Assert.assertNotNull(result);
         System.out.println(result);
 
         jsonResult = objectMapper.readTree(result);
-        Assert.assertEquals(11, jsonResult.get("count").asInt());
+        Assert.assertEquals(10, jsonResult.get("count").asInt());
 
         dataArray = (ArrayNode)jsonResult.get("data");
-        Assert.assertEquals(11, dataArray.size());
+        Assert.assertEquals(10, dataArray.size());
 
         first = dataArray.get(0);
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
 
-        last = dataArray.get(10);
-        Assert.assertEquals(26501857, last.get("pos").asInt());
-        Assert.assertEquals("T", ((ArrayNode)last.get("entries")).get(0).get("ref").asText());
-        Assert.assertEquals("G", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
+        last = dataArray.get(9);
+        Assert.assertEquals(25313958, last.get("pos").asInt());
+        Assert.assertEquals("G", ((ArrayNode)last.get("entries")).get(0).get("ref").asText());
+        Assert.assertEquals("A", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // range of one
         result = QueryEngine.getMutationsByRange("2", 25234482, 25234490, REPO_PATH_RANGES, 100);
