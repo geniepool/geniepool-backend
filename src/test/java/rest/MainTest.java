@@ -48,11 +48,13 @@ public class MainTest {
         ArrayNode homArray = (ArrayNode) result.get("hom");
         Assert.assertEquals(1, homArray.size());
         Assert.assertEquals("SRR14860530", homArray.get(0).get("id").asText());
+        Assert.assertEquals("3,37", homArray.get(0).get("ad").asText());
         Assert.assertEquals(1376.31, homArray.get(0).get("qual").asDouble(), 0);
         ArrayNode hetArray = (ArrayNode) result.get("het");
         Assert.assertEquals(1, hetArray.size());
         Assert.assertEquals("SRR14860527", hetArray.get(0).get("id").asText());
         Assert.assertEquals(464.64, hetArray.get(0).get("qual").asDouble(), 0);
+        Assert.assertEquals("2,13", hetArray.get(0).get("ad").asText());
 
         // test lower case
         response = new Main().getResult("x:77633124-77633124", REPO_PATH_RANGES, 10);
