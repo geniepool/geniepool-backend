@@ -88,6 +88,7 @@ public class MainTest {
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
         Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
+        Assert.assertEquals("rs123123", ((ArrayNode)first.get("entries")).get(0).get("dbSNP").asText());
 
         JsonNode last = dataArray.get(8);
         Assert.assertEquals(25247044, last.get("pos").asInt());
