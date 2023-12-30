@@ -25,6 +25,7 @@ public class MainTest {
     //TODO add more tests + test on Tomcat (use docker?)
 
     public static final String REPO_PATH_RANGES = "src/test/resources/repo_ranges/";
+    public static final String REPO_PATH_RANGES_T2T = "src/test/resources/t2t/";
     public static final String STATUS_PATH = "src/test/resources/status/";
 
     @Test

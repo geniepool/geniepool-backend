@@ -11,8 +11,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static query.QueryEngine.getRepoStatus;
-import static rest.MainTest.REPO_PATH_RANGES;
-import static rest.MainTest.STATUS_PATH;
+import static rest.MainTest.*;
 
 public class QueryEngineTest {
 
@@ -116,6 +115,17 @@ public class QueryEngineTest {
         dataArray = (ArrayNode)jsonResult.get("data");
         Assert.assertEquals(1, dataArray.size());
         Assert.assertEquals(0.9942, ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("alphamissense").asDouble(), 0.000001);
+
+        // test t2t
+        result = QueryEngine.getMutationsByRange("1", 774091, 774091, REPO_PATH_RANGES_T2T, 100);
+        Assert.assertNotNull(result);
+        System.out.println(result);
+        jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(1, jsonResult.get("count").asInt());
+        dataArray = (ArrayNode)jsonResult.get("data");
+        Assert.assertEquals(1, dataArray.size());
+        Assert.assertEquals(0.0908, ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("alphamissense").asDouble(), 0.000001);
+        Assert.assertEquals("chr1:1342463", ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("hg38_coordinate").asText());
     }
 
     @Test
