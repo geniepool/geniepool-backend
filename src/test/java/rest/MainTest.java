@@ -87,7 +87,7 @@ public class MainTest {
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
-        Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
+        Assert.assertEquals("impact 1 test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
         Assert.assertEquals("rs123123", ((ArrayNode)first.get("entries")).get(0).get("dbSNP").asText());
 
         JsonNode last = dataArray.get(8);
@@ -117,6 +117,11 @@ public class MainTest {
         // test bad input 4
         response = new Main().getResult("x:500000000", REPO_PATH_RANGES, 10);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // test alpha
+        response = new Main().getResult38("1:162778659-162778659");
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        System.out.println(response.getEntity());
     }
 
     @Test

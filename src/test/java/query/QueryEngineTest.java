@@ -42,7 +42,7 @@ public class QueryEngineTest {
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
-        Assert.assertEquals("impact XX test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
+        Assert.assertEquals("impact 1 test", ((ArrayNode)first.get("entries")).get(0).get("impact").asText());
 
         JsonNode last = dataArray.get(8);
         Assert.assertEquals(25247044, last.get("pos").asInt());
@@ -106,6 +106,16 @@ public class QueryEngineTest {
         //invalid chromosome
         Assert.assertThrows(Exception.class,
                 ()-> QueryEngine.getMutationsByRange("e", 1, 2, REPO_PATH_RANGES, 100));
+
+        // test alpha
+        result = QueryEngine.getMutationsByRange("1", 162778659, 162778659, REPO_PATH_RANGES, 100);
+        Assert.assertNotNull(result);
+        System.out.println(result);
+        jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(1, jsonResult.get("count").asInt());
+        dataArray = (ArrayNode)jsonResult.get("data");
+        Assert.assertEquals(1, dataArray.size());
+        Assert.assertEquals(0.9942, ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("alphamissense").asDouble(), 0.000001);
     }
 
     @Test
