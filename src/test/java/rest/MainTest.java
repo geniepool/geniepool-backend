@@ -33,8 +33,12 @@ public class MainTest {
 
         System.setProperty("REPO_HG_19_PATH", REPO_PATH_RANGES);
         System.setProperty("REPO_HG_38_PATH", REPO_PATH_RANGES);
+        System.setProperty("REPO_CHM13V2_PATH", REPO_PATH_RANGES_T2T);
+
         System.setProperty("HG19_STATUS_PATH", STATUS_PATH);
         System.setProperty("HG38_STATUS_PATH", STATUS_PATH);
+        System.setProperty("CHM13V2_STATUS_PATH", STATUS_PATH);
+
         System.setProperty("MAX_RANGE_RECORDS_IN_RESULT", "10");
 
         // test common valid flow
@@ -121,6 +125,11 @@ public class MainTest {
 
         // test alpha
         response = new Main().getResult38("1:162778659-162778659");
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        System.out.println(response.getEntity());
+
+        // test t2t
+        response = new Main().getResultCHM13V2("1:722494-722594");
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
     }

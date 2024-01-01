@@ -29,22 +29,27 @@ public class Main {
 
     private static final String HG19_PATH;
     private static final String HG38_PATH;
+    private static final String CHM13V2_PATH;
 
     private static final String HG19_STATUS_PATH;
     private static final String HG38_STATUS_PATH;
+    private static final String CHM13V2_STATUS_PATH;
 
     private static final int MAX_RANGE_RECORDS_IN_RESULT;
 
     static{
         HG19_PATH = System.getProperty("REPO_HG_19_PATH");
         HG38_PATH = System.getProperty("REPO_HG_38_PATH");
+        CHM13V2_PATH = System.getProperty("REPO_CHM13V2_PATH");
 
         HG19_STATUS_PATH = System.getProperty("HG19_STATUS_PATH");
         HG38_STATUS_PATH = System.getProperty("HG38_STATUS_PATH");
+        CHM13V2_STATUS_PATH = System.getProperty("CHM13V2_STATUS_PATH");
 
         if (HG19_PATH == null || HG19_PATH.isEmpty() || HG38_PATH == null
                 || HG38_PATH.isEmpty() || HG19_STATUS_PATH == null || HG19_STATUS_PATH.isEmpty()
-                || HG38_STATUS_PATH == null || HG38_STATUS_PATH.isEmpty()){
+                || HG38_STATUS_PATH == null || HG38_STATUS_PATH.isEmpty() || CHM13V2_PATH == null || CHM13V2_PATH.isEmpty()
+                || CHM13V2_STATUS_PATH == null || CHM13V2_STATUS_PATH.isEmpty()){
             throw new IllegalStateException("repo or status path is empty!");
         }
 
@@ -80,6 +85,24 @@ public class Main {
     public Response getStatus19() {
         try{
             String status = QueryEngine.getRepoStatus(HG19_STATUS_PATH);
+            return Response.status(OK).entity(status).build();
+        }catch(Exception e){
+            logger.error(e);
+            return Response.status(INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("/chm13v2/{index}")
+    public Response getResultCHM13V2(@PathParam("index") String index) {
+        return getResult(index, CHM13V2_PATH, MAX_RANGE_RECORDS_IN_RESULT);
+    }
+
+    @GET
+    @Path("/chm13v2/status")
+    public Response getStatusCHM13V2() {
+        try{
+            String status = QueryEngine.getRepoStatus(CHM13V2_STATUS_PATH);
             return Response.status(OK).entity(status).build();
         }catch(Exception e){
             logger.error(e);
