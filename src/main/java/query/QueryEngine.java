@@ -65,8 +65,6 @@ public class QueryEngine {
                         )
                 );
 
-        //TODO filter by am
-
         return (String) result.as(Encoders.STRING()).collectAsList().get(0);
     }
 
