@@ -27,7 +27,7 @@ public class QueryEngineTest {
     public void getMutationsByRangeTest() throws IOException {
 
         // range of two files, count of one
-        String result = QueryEngine.getMutationsByRange("2", 25234482, 25330557, REPO_PATH_RANGES, 9);
+        String result = QueryEngine.getMutationsByRange("2", 25234482, 25330557, REPO_PATH_RANGES, 9, null);
         Assert.assertNotNull(result);
         System.out.println(result);
 
@@ -49,7 +49,7 @@ public class QueryEngineTest {
         Assert.assertEquals("T", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // range of two
-        result = QueryEngine.getMutationsByRange("2", 25234482, 25330557, REPO_PATH_RANGES, 100);
+        result = QueryEngine.getMutationsByRange("2", 25234482, 25330557, REPO_PATH_RANGES, 100, null);
         Assert.assertNotNull(result);
         System.out.println(result);
 
@@ -70,7 +70,7 @@ public class QueryEngineTest {
         Assert.assertEquals("A", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // range of one
-        result = QueryEngine.getMutationsByRange("2", 25234482, 25234490, REPO_PATH_RANGES, 100);
+        result = QueryEngine.getMutationsByRange("2", 25234482, 25234490, REPO_PATH_RANGES, 100, null);
         Assert.assertNotNull(result);
         System.out.println(result);
 
@@ -80,7 +80,7 @@ public class QueryEngineTest {
         Assert.assertEquals(1, dataArray.size());
 
         // test counter counts mutations (rather than positions)
-        result = QueryEngine.getMutationsByRange("2", 47805600, 47805603, REPO_PATH_RANGES, 100);
+        result = QueryEngine.getMutationsByRange("2", 47805600, 47805603, REPO_PATH_RANGES, 100, null);
         Assert.assertNotNull(result);
         System.out.println(result);
         jsonResult = objectMapper.readTree(result);
@@ -89,7 +89,7 @@ public class QueryEngineTest {
         Assert.assertEquals(1, dataArray.size());
 
         // empty result
-        result = QueryEngine.getMutationsByRange("2", 25234483, 25234490, REPO_PATH_RANGES, 100);
+        result = QueryEngine.getMutationsByRange("2", 25234483, 25234490, REPO_PATH_RANGES, 100, null);
         Assert.assertNotNull(result);
         System.out.println(result);
 
@@ -100,14 +100,14 @@ public class QueryEngineTest {
 
         //invalid range
         Assert.assertThrows(Exception.class,
-                ()-> QueryEngine.getMutationsByRange("2", 500000000, 600000000, REPO_PATH_RANGES, 100));
+                ()-> QueryEngine.getMutationsByRange("2", 500000000, 600000000, REPO_PATH_RANGES, 100, null));
 
         //invalid chromosome
         Assert.assertThrows(Exception.class,
-                ()-> QueryEngine.getMutationsByRange("e", 1, 2, REPO_PATH_RANGES, 100));
+                ()-> QueryEngine.getMutationsByRange("e", 1, 2, REPO_PATH_RANGES, 100, null));
 
         // test alpha
-        result = QueryEngine.getMutationsByRange("1", 162778659, 162778659, REPO_PATH_RANGES, 100);
+        result = QueryEngine.getMutationsByRange("1", 162778659, 162778659, REPO_PATH_RANGES, 100, null);
         Assert.assertNotNull(result);
         System.out.println(result);
         jsonResult = objectMapper.readTree(result);
@@ -117,7 +117,7 @@ public class QueryEngineTest {
         Assert.assertEquals(0.9942, ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("alphamissense").asDouble(), 0.000001);
 
         // test t2t
-        result = QueryEngine.getMutationsByRange("1", 774091, 774091, REPO_PATH_RANGES_T2T, 100);
+        result = QueryEngine.getMutationsByRange("1", 774091, 774091, REPO_PATH_RANGES_T2T, 100, null);
         Assert.assertNotNull(result);
         System.out.println(result);
         jsonResult = objectMapper.readTree(result);
@@ -138,5 +138,28 @@ public class QueryEngineTest {
         Assert.assertEquals(1061550583, jsonResult.get("mutations_num").asInt());
         Assert.assertEquals(9997, jsonResult.get("samples_num").asInt());
         Assert.assertEquals("2021-09-08 06:32:20.432", jsonResult.get("update_date").asText());
+    }
+
+    @Test
+    public void alphaFilteringTest() throws IOException {
+        String result = QueryEngine.getMutationsByRange("7", 117587750, 117587755, "src/test/resources/hg38/", 100, 0.09);
+        Assert.assertNotNull(result);
+        System.out.println(result);
+        JsonNode jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(3, jsonResult.get("count").asInt());
+
+        result = QueryEngine.getMutationsByRange("7", 117587750, 117587755, "src/test/resources/hg38/", 100, 0.1);
+        jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(2, jsonResult.get("count").asInt());
+
+        result = QueryEngine.getMutationsByRange("7", 117587750, 117587755, "src/test/resources/hg38/", 100, 0.2);
+        jsonResult = objectMapper.readTree(result);
+        Assert.assertEquals(1, jsonResult.get("count").asInt());
+
+        ArrayNode dataArray = (ArrayNode)jsonResult.get("data");
+        Assert.assertEquals(1, dataArray.size());
+        Assert.assertEquals(0.8354, ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("alphamissense").asDouble(), 0.000001);
+        Assert.assertEquals("rs397508238", ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("dbSNP").asText());
+
     }
 }

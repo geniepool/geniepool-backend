@@ -31,7 +31,7 @@ public class QueryEngine {
 
     }
 
-    public static String getMutationsByRange(String chrom, int posFrom, int posTo, String repoPath, int maxRecordsNum){
+    public static String getMutationsByRange(String chrom, int posFrom, int posTo, String repoPath, int maxRecordsNum, Double am){
 
         // for range queries we scan at most two buckets
         String path1 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posFrom, PARTITION_SIZE));
@@ -42,7 +42,15 @@ public class QueryEngine {
 
         Dataset result = df
                 .where(col("pos").geq(posFrom))
-                .where(col("pos").leq(posTo))
+                .where(col("pos").leq(posTo));
+
+        if (am != null && am > 0){
+            result = result
+                    .filter(expr(String.format("exists(entries, x -> x.alphamissense > %f)", am)))
+                    .withColumn("entries", expr(String.format("filter(entries,  x -> x.alphamissense > %f)", am)));
+        }
+
+        result = result
                 .orderBy("pos")
                 .groupBy()
                 .agg(
@@ -56,6 +64,8 @@ public class QueryEngine {
                                 )
                         )
                 );
+
+        //TODO filter by am
 
         return (String) result.as(Encoders.STRING()).collectAsList().get(0);
     }
