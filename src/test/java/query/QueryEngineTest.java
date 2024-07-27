@@ -162,4 +162,12 @@ public class QueryEngineTest {
         Assert.assertEquals("rs397508238", ((ArrayNode)dataArray.get(0).get("entries")).get(0).get("dbSNP").asText());
 
     }
+
+    @Test
+    public void qualFilteringTest(){
+        String result = QueryEngine.getMutationsByRange("7", 117587750, 117587755, "src/test/resources/hg38/", 100, null);
+        Assert.assertNotNull(result);
+        System.out.println("my-result");
+        System.out.println(result);
+    }
 }

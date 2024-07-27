@@ -50,6 +50,11 @@ public class QueryEngine {
                     .withColumn("entries", expr(String.format("filter(entries,  x -> x.alphamissense > %f)", am)));
         }
 
+        if (false) {
+            result = result
+                    .filter(expr(String.format("exists(entries, x -> exists (x.het, y -> y.qual > %f))", 100.0)));
+        }
+
         result = result
                 .orderBy("pos")
                 .groupBy()
