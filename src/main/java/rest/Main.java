@@ -59,8 +59,8 @@ public class Main {
 
     @GET
     @Path("/hg38/{index}")
-    public Response getResult38(@PathParam("index") String index, @QueryParam("am") Double am) {
-        return getResult(index, HG38_PATH, MAX_RANGE_RECORDS_IN_RESULT, am);
+    public Response getResult38(@PathParam("index") String index, @QueryParam("am") Double am, @QueryParam("qual") Integer qual, @QueryParam("ad") Integer ad) {
+        return getResult(index, HG38_PATH, MAX_RANGE_RECORDS_IN_RESULT, am, qual, ad);
     }
 
     @GET
@@ -77,8 +77,8 @@ public class Main {
 
     @GET
     @Path("/hg19/{index}")
-    public Response getResult19(@PathParam("index") String index, @QueryParam("am") Double am) {
-        return getResult(index, HG19_PATH, MAX_RANGE_RECORDS_IN_RESULT, am);
+    public Response getResult19(@PathParam("index") String index, @QueryParam("am") Double am, @QueryParam("qual") Integer qual, @QueryParam("ad") Integer ad) {
+        return getResult(index, HG19_PATH, MAX_RANGE_RECORDS_IN_RESULT, am, qual, ad);
     }
 
     @GET
@@ -95,8 +95,8 @@ public class Main {
 
     @GET
     @Path("/chm13v2/{index}")
-    public Response getResultCHM13V2(@PathParam("index") String index, @QueryParam("am") Double am) {
-        return getResult(index, CHM13V2_PATH, MAX_RANGE_RECORDS_IN_RESULT, am);
+    public Response getResultCHM13V2(@PathParam("index") String index, @QueryParam("am") Double am, @QueryParam("qual") Integer qual, @QueryParam("ad") Integer ad) {
+        return getResult(index, CHM13V2_PATH, MAX_RANGE_RECORDS_IN_RESULT, am, qual, ad);
     }
 
     @GET
@@ -111,9 +111,9 @@ public class Main {
         }
     }
 
-    Response getResult(String index, String repoPath, int maxRangeResult, Double am){
+    Response getResult(String index, String repoPath, int maxRangeResult, Double am, Integer qual, Integer ad){
 
-        logger.debug("Got request for index: " + index + " from path " + repoPath + ", am = " + am);
+        logger.debug("Got request for index: " + index + " from path " + repoPath + ", am = " + am + ", qual = " + qual + ", ad =" + ad);
 
         String[] indexSplit = index.split(":");
 
@@ -127,7 +127,7 @@ public class Main {
                 String[] posSplit = indexSplit[1].trim().split("-");
 
                 if (posSplit.length == 2){
-                    return handleRange(posSplit[0].trim(), posSplit[1].trim(), chrom, repoPath, maxRangeResult, am) ;
+                    return handleRange(posSplit[0].trim(), posSplit[1].trim(), chrom, repoPath, maxRangeResult, am, qual, ad) ;
                 }else{
                     return Response.status(BAD_REQUEST).build();
                 }
@@ -139,7 +139,7 @@ public class Main {
 
     }
 
-    private static Response handleRange(String fromStr, String toStr, String chromosome, String repoPath, int maxRangeResult, Double am){
+    private static Response handleRange(String fromStr, String toStr, String chromosome, String repoPath, int maxRangeResult, Double am, Integer qual, Integer ad){
         int from;
         int to;
         try {
@@ -152,7 +152,7 @@ public class Main {
         logger.debug("chrom = " + chromosome + ", from = " + from + ", to = " + to);
 
         try {
-            String result = QueryEngine.getMutationsByRange(chromosome, from, to, repoPath, maxRangeResult, am);
+            String result = QueryEngine.getMutationsByRange(chromosome, from, to, repoPath, maxRangeResult, am, qual, ad);
             return Response.status(OK).entity(result).build();
         } catch (Exception e) {
             logger.error(e);
