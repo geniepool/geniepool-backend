@@ -42,7 +42,7 @@ public class MainTest {
         System.setProperty("MAX_RANGE_RECORDS_IN_RESULT", "10");
 
         // test common valid flow
-        Response response = new Main().getResult19("X:77633124-77633124", null);
+        Response response = new Main().getResult19("X:77633124-77633124", null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
@@ -62,7 +62,7 @@ public class MainTest {
         Assert.assertEquals("2,13", hetArray.get(0).get("ad").asText());
 
         // test lower case
-        response = new Main().getResult("x:77633124-77633124", REPO_PATH_RANGES, 10, null);
+        response = new Main().getResult("x:77633124-77633124", REPO_PATH_RANGES, 10, null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
@@ -78,7 +78,7 @@ public class MainTest {
         Assert.assertEquals("SRR14860527", hetArray.get(0).get("id").asText());
 
         //test range query
-        response = new Main().getResult("2:25234482-25330557", REPO_PATH_RANGES, 9, null);
+        response = new Main().getResult("2:25234482-25330557", REPO_PATH_RANGES, 9, null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
 
@@ -101,53 +101,74 @@ public class MainTest {
         Assert.assertEquals("T", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // test empty case
-        response = new Main().getResult("x:15800112-15800112", REPO_PATH_RANGES, 10, null);
+        response = new Main().getResult("x:15800112-15800112", REPO_PATH_RANGES, 10, null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
         Assert.assertEquals(0, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
 
         // test bad input 1
-        response = new Main().getResult("adkwjfh", REPO_PATH_RANGES, 10, null);
+        response = new Main().getResult("adkwjfh", REPO_PATH_RANGES, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test bad input 2
-        response = new Main().getResult("s:sss", REPO_PATH_RANGES, 10, null);
+        response = new Main().getResult("s:sss", REPO_PATH_RANGES, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test bad input 3
-        response = new Main().getResult("s:12345", REPO_PATH_RANGES, 10, null);
+        response = new Main().getResult("s:12345", REPO_PATH_RANGES, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test bad input 4
-        response = new Main().getResult("x:500000000", REPO_PATH_RANGES, 10, null);
+        response = new Main().getResult("x:500000000", REPO_PATH_RANGES, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test alpha
-        response = new Main().getResult38("1:162778659-162778659", null);
+        response = new Main().getResult38("1:162778659-162778659", null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
 
         // test t2t
-        response = new Main().getResultCHM13V2("1:722494-722594", null);
+        response = new Main().getResultCHM13V2("1:722494-722594", null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
 
         // test alpha filtering
-        response = new Main().getResult38("1:162777659-162779659", 0.5);
+        response = new Main().getResult38("1:162777659-162779659", 0.5, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertEquals(1, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
 
-        response = new Main().getResult38("1:162700001-162799999", null);
+        response = new Main().getResult38("1:162700001-162799999", null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertEquals(8, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
 
-        response = new Main().getResult38("1:162700001-162799999", 0.9955);
+        response = new Main().getResult38("1:162700001-162799999", 0.9955, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertEquals(0, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
+
+        // test ad and qual
+        response = new Main().getResultCHM13V2("1:722494-722594", null, 70, null);
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        System.out.println(response.getEntity());
+        Assert.assertEquals(0, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
+
+        response = new Main().getResultCHM13V2("1:722494-722594", null, 65, null);
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        System.out.println(response.getEntity());
+        Assert.assertEquals(1, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
+
+        response = new Main().getResultCHM13V2("1:722494-722594", null, 65, 4);
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        System.out.println(response.getEntity());
+        Assert.assertEquals(0, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
+
+        response = new Main().getResultCHM13V2("1:722494-722594", null, 65, 3);
+        Assert.assertEquals(OK.getStatusCode(), response.getStatus());
+        System.out.println(response.getEntity());
+        Assert.assertEquals(1, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
     }
 
     @Test

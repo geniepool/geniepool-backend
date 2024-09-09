@@ -38,12 +38,11 @@ public class QueryEngine {
         }
     }
 
-    public static String getMutationsByRange(String chrom, int posFrom, int posTo, String repoPath, int maxRecordsNum, Double am){
+    public static String getMutationsByRange(String chrom, int posFrom, int posTo, String repoPath, int maxRecordsNum, Double am, Integer qual, Integer ad){
 
         // for range queries we scan at most two buckets
         String path1 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posFrom, PARTITION_SIZE));
         String path2 = repoPath + String.format("chrom=%s/pos_bucket=%d/", "chr" + chrom.toUpperCase(), Math.floorDiv(posTo, PARTITION_SIZE));
-
 
         Dataset df = spark.read().parquet(JavaConversions.asScalaSet(new HashSet(Arrays.asList(path1, path2))).toSeq());
 
@@ -54,12 +53,20 @@ public class QueryEngine {
         if (am != null && am > 0){
             result = result
                     .filter(expr(String.format("exists(entries, x -> x.alphamissense > %f)", am)))
-                    .withColumn("entries", expr(String.format("filter(entries,  x -> x.alphamissense > %f)", am)));
+                    .withColumn("entries", expr(String.format("filter(entries,  x -> x.alphamissense >= %f)", am)));
         }
 
-        if (false) {
+        if (qual != null) {
             result = result
-                    .filter(expr(String.format("exists(entries, x -> exists (x.het, y -> y.qual > %f))", 100.0)));
+                    .filter(expr(String.format("exists(entries, x -> exists (x.het, y -> y.qual >= %d))", qual))
+                            .or(expr(String.format("exists(entries, x -> exists (x.hom, y -> y.qual >= %d))", qual))));
+        }
+
+        if (ad != null) {
+            result = result
+                    .filter(expr(String.format("exists(entries, x -> exists (x.het, y -> split(y.ad, ',')[0] + split(y.ad, ',')[1] >= %d))", ad)).or(
+                            expr(String.format("exists(entries, x -> exists (x.hom, y -> split(y.ad, ',')[0] + split(y.ad, ',')[1] >= %d))", ad))
+                    ));
         }
 
         result = result
