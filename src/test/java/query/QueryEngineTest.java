@@ -165,7 +165,7 @@ public class QueryEngineTest {
     }
 
     @Test
-    public void qualAndAdFilteringTest() throws JsonProcessingException {
+    public void qualAndAdFilteringTest() throws IOException {
         String result = QueryEngine.getMutationsByRange("7", 117587750, 117587755, "src/test/resources/hg38/", 100, null, null, null);
         Assert.assertNotNull(result);
         System.out.println(result);
@@ -205,5 +205,6 @@ public class QueryEngineTest {
         System.out.println(result);
         jsonResult = objectMapper.readTree(result);
         Assert.assertEquals(1, jsonResult.get("count").asInt());
+
     }
 }
