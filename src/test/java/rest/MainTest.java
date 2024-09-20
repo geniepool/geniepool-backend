@@ -27,6 +27,7 @@ public class MainTest {
     public static final String REPO_PATH_RANGES = "src/test/resources/repo_ranges/";
     public static final String REPO_PATH_RANGES_T2T = "src/test/resources/t2t/";
     public static final String STATUS_PATH = "src/test/resources/status/";
+    public static final String DBSNP_PATH = "src/test/resources/dbsnp_index_hg38/";
 
     @Test
     public void getResultTest() throws IOException {
@@ -38,6 +39,10 @@ public class MainTest {
         System.setProperty("HG19_STATUS_PATH", STATUS_PATH);
         System.setProperty("HG38_STATUS_PATH", STATUS_PATH);
         System.setProperty("CHM13V2_STATUS_PATH", STATUS_PATH);
+
+        System.setProperty("HG19_DBSNP_PATH", DBSNP_PATH);
+        System.setProperty("HG38_DBSNP_PATH", DBSNP_PATH);
+        System.setProperty("CHM13V2_DBSNP_PATH", DBSNP_PATH);
 
         System.setProperty("MAX_RANGE_RECORDS_IN_RESULT", "10");
 
@@ -62,7 +67,7 @@ public class MainTest {
         Assert.assertEquals("2,13", hetArray.get(0).get("ad").asText());
 
         // test lower case
-        response = new Main().getResult("x:77633124-77633124", REPO_PATH_RANGES, 10, null, null, null);
+        response = new Main().getResult("x:77633124-77633124", REPO_PATH_RANGES, DBSNP_PATH, 10, null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
@@ -78,7 +83,7 @@ public class MainTest {
         Assert.assertEquals("SRR14860527", hetArray.get(0).get("id").asText());
 
         //test range query
-        response = new Main().getResult("2:25234482-25330557", REPO_PATH_RANGES, 9, null, null, null);
+        response = new Main().getResult("2:25234482-25330557", REPO_PATH_RANGES, DBSNP_PATH, 9, null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
 
@@ -89,6 +94,7 @@ public class MainTest {
         Assert.assertEquals(9, dataArray.size());
 
         JsonNode first = dataArray.get(0);
+        Assert.assertEquals("2", first.get("chrom").asText());
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
@@ -101,26 +107,26 @@ public class MainTest {
         Assert.assertEquals("T", ((ArrayNode)last.get("entries")).get(0).get("alt").asText());
 
         // test empty case
-        response = new Main().getResult("x:15800112-15800112", REPO_PATH_RANGES, 10, null, null, null);
+        response = new Main().getResult("x:15800112-15800112", REPO_PATH_RANGES, DBSNP_PATH, 10, null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertNotNull(response.getEntity());
         Assert.assertEquals(0, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
 
         // test bad input 1
-        response = new Main().getResult("adkwjfh", REPO_PATH_RANGES, 10, null, null, null);
+        response = new Main().getResult("adkwjfh", REPO_PATH_RANGES, DBSNP_PATH, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test bad input 2
-        response = new Main().getResult("s:sss", REPO_PATH_RANGES, 10, null, null, null);
+        response = new Main().getResult("s:sss", REPO_PATH_RANGES, DBSNP_PATH, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test bad input 3
-        response = new Main().getResult("s:12345", REPO_PATH_RANGES, 10, null, null, null);
+        response = new Main().getResult("s:12345", REPO_PATH_RANGES, DBSNP_PATH, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test bad input 4
-        response = new Main().getResult("x:500000000", REPO_PATH_RANGES, 10, null, null, null);
+        response = new Main().getResult("x:500000000", REPO_PATH_RANGES, DBSNP_PATH, 10, null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // test alpha
@@ -169,6 +175,31 @@ public class MainTest {
         Assert.assertEquals(OK.getStatusCode(), response.getStatus());
         System.out.println(response.getEntity());
         Assert.assertEquals(1, objectMapper.readTree((String)response.getEntity()).get("count").asInt());
+
+        // test query by dbSNP (pos_bucket=1154 was taken from production)
+        Response response1 = new Main().getResult38("rs524965", null, null, null);
+        Assert.assertEquals(OK.getStatusCode(), response1.getStatus());
+        Response response2 = new Main().getResult38("1:115480755-115480755", null, null, null);
+        Assert.assertEquals(OK.getStatusCode(), response2.getStatus());
+        Assert.assertEquals(response1.getEntity(), response2.getEntity());
+        System.out.println(response2.getEntity());
+
+        response = new Main().getResult38("rs2131238", null, null, null);
+        Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+
+
+        // test not-existing number
+        response = new Main().getResult38("rs24050604", null, null, null);
+        Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // test bad number
+        response = new Main().getResult38("rs32483048230948", null, null, null);
+        Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // test no number
+        response = new Main().getResult38("rsskdfjsdhf", null, null, null);
+        Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+
     }
 
     @Test
