@@ -1,16 +1,19 @@
 package query;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import scala.collection.JavaConversions;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.apache.spark.sql.functions.*;
 
@@ -18,6 +21,7 @@ public class QueryEngine {
 
     private static final SparkSession spark;
     private static final int PARTITION_SIZE = 100_000;
+    private static final int PARTITION_SIZE_DBSNP = 10_000_000;
 
     static{
 
@@ -102,4 +106,25 @@ public class QueryEngine {
                 ).as(Encoders.STRING()).collectAsList().get(0);
 
     }
+
+    public static Pair<String, String> dbsnpToCoordinate(String dbSnpPath, String dbsnpId){
+        List<Row> result;
+
+        try {
+            String filePath = dbSnpPath + String.format("part=%d/", Math.floorDiv(Integer.parseInt(dbsnpId), PARTITION_SIZE_DBSNP));
+            Dataset dbsnpIndex = spark.read().parquet(filePath).where(col("id").equalTo(dbsnpId));
+            result = dbsnpIndex.collectAsList();
+        }catch(Exception e){
+            return null;
+        }
+
+        if (!result.isEmpty()){
+            String chrom = result.get(0).getAs("chrom");
+            Long pos = result.get(0).getAs("pos");
+            return Pair.of(chrom, String.valueOf(pos));
+        }else {
+            return null;
+        }
+    }
+
 }
