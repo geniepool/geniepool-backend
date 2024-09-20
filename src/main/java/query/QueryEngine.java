@@ -121,7 +121,7 @@ public class QueryEngine {
         if (!result.isEmpty()){
             String chrom = result.get(0).getAs("chrom");
             Long pos = result.get(0).getAs("pos");
-            return Pair.of(chrom, String.valueOf(pos));
+            return Pair.of(chrom.toLowerCase(), String.valueOf(pos));
         }else {
             return null;
         }
