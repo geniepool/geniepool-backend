@@ -82,7 +82,7 @@ public class QueryEngine {
                                         coalesce(sum(size(col("entries"))), lit(0)).as("count"),
                                         slice(
                                                 collect_list(
-                                                        struct(col("pos"), col("entries"))),1, maxRecordsNum
+                                                        struct(lit(chrom).as("chrom"), col("pos"), col("entries"))),1, maxRecordsNum
                                         ).as("data")
                                 )
                         )

@@ -94,6 +94,7 @@ public class MainTest {
         Assert.assertEquals(9, dataArray.size());
 
         JsonNode first = dataArray.get(0);
+        Assert.assertEquals("2", first.get("chrom").asText());
         Assert.assertEquals(25234482, first.get("pos").asInt());
         Assert.assertEquals("C", ((ArrayNode)first.get("entries")).get(0).get("ref").asText());
         Assert.assertEquals("T", ((ArrayNode)first.get("entries")).get(0).get("alt").asText());
@@ -181,6 +182,7 @@ public class MainTest {
         Response response2 = new Main().getResult38("1:115480755-115480755", null, null, null);
         Assert.assertEquals(OK.getStatusCode(), response2.getStatus());
         Assert.assertEquals(response1.getEntity(), response2.getEntity());
+        System.out.println(response2.getEntity());
 
         response = new Main().getResult38("rs2131238", null, null, null);
         Assert.assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
